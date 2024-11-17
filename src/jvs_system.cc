@@ -6,17 +6,21 @@ size_t JVSSystem::process_message(const uint8_t id, const char* request_buffer, 
 {
   if (id != 0xFF && id != id_)
   {
+#ifdef USB_SERIAL
     Serial.print("message isn't for me ");
     Serial.println(id);
+#endif
     return 0;
   }
 
   const auto command = static_cast<JVSCommand>(request_buffer[0]);
 
   char debug_msg[256];
+#ifdef USB_SERIAL
   sprintf(debug_msg, "Got %d message: %s %02X request length is %d", id_, get_command_type_str(command), command,
           request_len);
   Serial.println(debug_msg);
+#endif
 
   switch (command)
   {
@@ -33,8 +37,10 @@ size_t JVSSystem::process_message(const uint8_t id, const char* request_buffer, 
       break;
     }
     id_ = request_buffer[1];
+#ifdef USB_SERIAL
     Serial.print("ID is now ");
     Serial.println(id_);
+#endif
     response.append(NORMAL_REPORT);
     return 1;
   case JVSCommand::IO_IDENTIFY:
@@ -157,7 +163,9 @@ size_t JVSSystem::process_message(const uint8_t id, const char* request_buffer, 
     return 2;
   }
   default:
+#ifdef USB_SERIAL
     Serial.println("unknown command!");
+#endif
     response.status = UNKNOWN_COMMAND_STATUS;
     return 0;
     break;

@@ -11,7 +11,6 @@ JVSSystem jvses[jvs_count];
 
 void setup()
 {
-  Serial.begin(9600);
   Serial4.begin(115200);
   Serial4.transmitterEnable(15);
   pinMode(SENSE_PIN, OUTPUT);
@@ -19,8 +18,10 @@ void setup()
   digitalWrite(SENSE_PIN, HIGH);
   setup_io();
   delay(5);
-
+#ifdef USB_SERIAL
+  Serial.begin(9600);
   Serial.println("Starting!");
+#endif
 }
 
 void handle_jvs_message(JVSSystem& jvs, const char* buf)
@@ -60,6 +61,8 @@ void handle_jvs_message(JVSSystem& jvs, const char* buf)
 
 void loop()
 {
+  update_joysticks();
+
   if (jvs_reader.update())
   {
     const char* buf = jvs_reader.buffer();
@@ -69,7 +72,9 @@ void loop()
       switch (command)
       {
       case JVSCommand::RESET:
+#ifdef USB_SERIAL
         Serial.println("System reset");
+#endif
         for (auto& jvs : jvses)
         {
           jvs.reset();

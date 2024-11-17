@@ -1,6 +1,7 @@
 #include "jvs_frame.hh"
 #include <Arduino.h>
 #include <bitset>
+#include <usb_joystick.h>
 
 int starts[2] = {36, 35};
 int sticks[2][4] = {{5, 4, 22, 6}, {31, 30, 32, 23}};
@@ -55,6 +56,24 @@ void build_io_packet(int player, JVSResponse& response)
   response.append(static_cast<uint8_t>(val & 0xFF));
   val >>= 8;
   response.append(static_cast<uint8_t>(val & 0xFF));
+}
+
+void update_joysticks()
+{
+#ifdef USB_HID
+  int button = 0;
+  for (int player = 0; player < 1; ++player)
+  {
+    for (int stick = 0; stick < 4; ++stick)
+    {
+      Joystick.button(button++, !digitalRead(sticks[player][stick]));
+    }
+    for (int button = 0; button < 8; ++button)
+    {
+      Joystick.button(button++, !digitalRead(buttons[player][button]));
+    }
+  }
+#endif
 }
 
 void update_analog(uint16_t (&analog_values)[8])
