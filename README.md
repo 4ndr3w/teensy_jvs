@@ -2,6 +2,8 @@
 
 This repository contains the source for the JVS I/O board I've built using a Teensy4.1 to run inside my Vewlix cabinet, connected to a Naomi. If this setup doesn't seem too bespoke to you and is something you're interested in replicating, setup the IO->button mapping in `io.cc` to your liking, connect a RS485 transceiver to Serial4, SENSE pin to 41, and you're good to go!
 
+Now with support for JVS' (JVS-dash) and the exA-Arcadia game menu button.
+
 ## Building
 
 This project uses [PlatformIO](https://platformio.org/). Run `pio run -t upload` to build the project and upload it to the microcontroller.

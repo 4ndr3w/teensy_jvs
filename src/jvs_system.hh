@@ -1,5 +1,12 @@
 #include "jvs_frame.hh"
 
+// Support all speeds.
+const uint8_t JVS_COMM_SUPPORT = 0x07;
+// in bits per second.
+const uint JVS_COMM_SPEEDS[3] = {115200, 1000000, 3000000};
+// JVS Dash debug LED pin.
+const int JVS_DASH_LED = 27;
+
 enum JVSCommand : uint8_t
 {
   // Global
@@ -25,7 +32,9 @@ enum JVSCommand : uint8_t
   INCREASE_COIN = 0x31,
   DECREASE_COIN = 0x30,
 
-  RETRANSMIT = 0x2F
+  RETRANSMIT = 0x2F,
+  // Communication Support Query.
+  COMMSUP = 0xD0
 };
 
 inline const char* get_command_type_str(JVSCommand cmd)
@@ -68,6 +77,8 @@ inline const char* get_command_type_str(JVSCommand cmd)
     return "OUTPUT2";
   case JVSCommand::SET_OUTPUT_BIT:
     return "OUTPUT3";
+  case JVSCommand::COMMSUP:
+    return "COMMSUP";
   }
   return "unknown";
 }

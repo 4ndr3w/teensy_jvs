@@ -2,12 +2,14 @@
 #include <Arduino.h>
 #include <bitset>
 
+int game_button = 33;
 int starts[2] = {36, 35};
 int sticks[2][4] = {{5, 4, 22, 6}, {31, 30, 32, 23}};
 int buttons[2][8] = {{7, 8, 9, 10, 11, 12, 28, 29}, {21, 20, 19, 18, 40, 39, 38, 37}};
 
 void setup_io()
 {
+  pinMode(game_button, INPUT_PULLUP);
   pinMode(starts[0], INPUT_PULLUP);
   pinMode(starts[1], INPUT_PULLUP);
   for (int i = 0; i < 4; ++i)
@@ -26,6 +28,15 @@ void build_io_packet(int player, JVSResponse& response)
 {
   std::bitset<32> packet;
   packet.set(7, !digitalRead(starts[player]));
+
+  // if the game button is pressed and the player is 0, set the player1 start button, and player1 button 1.
+  if (!digitalRead(game_button) && player == 0)
+  {
+    // player 1 start button.
+    packet.set(7, 1);
+    // plyuer 1 button 1.
+    packet.set(1, 1);
+  }
 
   for (int i = 0; i < 4; ++i)
   {

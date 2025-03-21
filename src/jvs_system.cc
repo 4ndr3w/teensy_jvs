@@ -41,7 +41,7 @@ size_t JVSSystem::process_message(const uint8_t id, const char* request_buffer, 
     response.append(NORMAL_REPORT);
 
     // For a more legit looking response
-    //response.append_str("SEGA ENTERPRISESLTD.;I/O BD JVS;837-13551;Ver1.00;98/10");
+    // response.append_str("SEGA ENTERPRISESLTD.;I/O BD JVS;837-13551;Ver1.00;98/10");
 
     sprintf(debug_msg, "BASED IO #%d;I/O BD JVS;837-13551;Ver1.00;2024", id_);
     response.append_str(debug_msg);
@@ -155,6 +155,31 @@ size_t JVSSystem::process_message(const uint8_t id, const char* request_buffer, 
   {
     response.append(NORMAL_REPORT);
     return 2;
+  }
+  case JVSCommand::COMM_SPEED_CHANGE:
+  {
+    auto method_code = request_buffer[1];
+    if (method_code < (sizeof(JVS_COMM_SPEEDS) / sizeof(JVS_COMM_SPEEDS[0])))
+    {
+      Serial4.end();
+      Serial4.begin(JVS_COMM_SPEEDS[method_code]);
+      Serial4.clear();
+      Serial4.transmitterEnable(15);
+      // must wait at least 5ms.
+      delay(5);
+      // if not 0 then we are in dash mode.
+      if (method_code != 0)
+      {
+        pinMode(JVS_DASH_LED, OUTPUT);
+      }
+    }
+    return 1;
+  }
+  case JVSCommand::COMMSUP:
+  {
+    response.append(NORMAL_REPORT);
+    response.append(JVS_COMM_SUPPORT);
+    return 0;
   }
   default:
     Serial.println("unknown command!");
