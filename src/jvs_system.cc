@@ -7,15 +7,18 @@ size_t JVSSystem::process_message(const uint8_t id, const char* request_buffer, 
   if (id != 0xFF && id != id_)
   {
     Serial.print("message isn't for me ");
-    Serial.println(id);
+    Serial.print(id);
+    Serial.print(" I am ");
+    Serial.print(id_);
+    Serial.print(" message size is ");
+    Serial.println(request_len);
     return 0;
   }
 
   const auto command = static_cast<JVSCommand>(request_buffer[0]);
 
   char debug_msg[256];
-  sprintf(debug_msg, "Got %d message: %s %02X request length is %d", id_, get_command_type_str(command), command,
-          request_len);
+  sprintf(debug_msg, "Got %d message: %s %02X", id_, get_command_type_str(command), command);
   Serial.println(debug_msg);
 
   switch (command)
@@ -23,6 +26,7 @@ size_t JVSSystem::process_message(const uint8_t id, const char* request_buffer, 
   case JVSCommand::RESET:
     if (request_buffer[1] != 0xD9)
     {
+      Serial.println("Reset, but invalid magic");
       break;
     }
     reset();
@@ -41,10 +45,10 @@ size_t JVSSystem::process_message(const uint8_t id, const char* request_buffer, 
     response.append(NORMAL_REPORT);
 
     // For a more legit looking response
-    // response.append_str("SEGA ENTERPRISESLTD.;I/O BD JVS;837-13551;Ver1.00;98/10");
+    response.append_str("SEGA ENTERPRISESLTD.;I/O BD JVS;837-13551;Ver1.00;98/10");
 
-    sprintf(debug_msg, "BASED IO #%d;I/O BD JVS;837-13551;Ver1.00;2024", id_);
-    response.append_str(debug_msg);
+    //sprintf(debug_msg, "BASED IO #%d;I/O BD JVS;837-13551;Ver1.00;2024", id_);
+    //response.append_str(debug_msg);
 
     return 0;
   case JVSCommand::COMMAND_REVISION:
@@ -57,7 +61,7 @@ size_t JVSSystem::process_message(const uint8_t id, const char* request_buffer, 
     return 0;
   case JVSCommand::JVS_REVISION:
     response.append(NORMAL_REPORT);
-    response.append(0x30);
+    response.append(0x20);
     return 0;
   case JVSCommand::FEATURE_CHECK:
     response.append(NORMAL_REPORT);
@@ -77,7 +81,7 @@ size_t JVSSystem::process_message(const uint8_t id, const char* request_buffer, 
     {
       // Coin slots
       response.append(0x02);
-      response.append(2);
+      response.append(1);
       // Empty
       response.append(0x0);
       // Empty
@@ -119,9 +123,6 @@ size_t JVSSystem::process_message(const uint8_t id, const char* request_buffer, 
     response.append(NORMAL_REPORT);
     response.append(0);
     response.append(0);
-
-    response.append(0);
-    response.append(0);
     return 1;
   }
   case JVSCommand::DECREASE_COIN:
@@ -133,7 +134,7 @@ size_t JVSSystem::process_message(const uint8_t id, const char* request_buffer, 
     response.append(NORMAL_REPORT);
     auto players = request_buffer[1];
     auto bytes_to_send = request_buffer[2];
-    response.append(0);
+    response.append(build_test_button_packet());
     if (players > 0)
     {
       build_io_packet(0, response);

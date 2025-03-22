@@ -30,6 +30,13 @@ void handle_jvs_message(JVSSystem& jvs, const char* buf)
   JVSResponse response;
   response.status = NORMAL_STATUS;
 
+//  for (size_t pos = 0; pos < jvs_reader.size(); ++pos)
+//  {
+//    Serial.print(pos, HEX);
+//    Serial.print(" ");
+//  }
+//  Serial.println();
+
   while (buffer_offset < jvs_reader.size() - 1)
   {
     int consumed_bytes = jvs.process_message(jvs_reader.id(), jvs_reader.buffer() + buffer_offset,
@@ -89,15 +96,21 @@ void loop()
         break;
       }
     }
-    else
+    else if (jvs_reader.id() == 1)
     {
-      handle_jvs_message(jvses[jvs_reader.id() - 1], buf);
+      handle_jvs_message(jvses[0], buf);
+      if (!jvses[0].has_id()) {
+        Serial.println("not configured");
+      }
     }
 
     bool setup = true;
     for (const auto& jvs : jvses)
     {
       setup &= jvs.has_id();
+    }
+    if (!setup) {
+      Serial.println("not configured");
     }
     digitalWrite(SENSE_PIN, !setup);
     digitalWrite(13, setup);

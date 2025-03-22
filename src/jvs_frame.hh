@@ -2,6 +2,8 @@
 
 #include <Arduino.h>
 
+constexpr size_t max_buffer_len{256};
+
 enum JVSStatusCode : uint8_t
 {
   NORMAL_STATUS = 1,
@@ -20,6 +22,7 @@ enum JVSReportCode : uint8_t
 
 enum JVSState
 {
+  AWAIT_INIT,
   READ_ID,
   READ_LEN,
   READ_DATA,
@@ -40,11 +43,12 @@ public:
   uint8_t id() const;
 
 private:
-  JVSState state_;
+  JVSState state_{AWAIT_INIT};
   uint8_t buffer_[256];
   uint32_t cur_len_;
   uint32_t len_;
   uint32_t id_;
+  uint8_t checksum_;
   bool escape_{false};
 };
 
@@ -65,6 +69,6 @@ public:
   JVSStatusCode& status;
 
 private:
-  uint8_t buffer[256];
+  uint8_t buffer[max_buffer_len];
   uint8_t checksum;
 };

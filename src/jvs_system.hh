@@ -91,13 +91,13 @@ public:
   uint8_t id() const;
   bool has_id() const;
   void reset();
-  bool has_analog{true};
+  bool has_analog{false};
   bool has_coin{true};
   bool has_buttons{true};
-  bool has_output{true};
+  bool has_output{false};
   uint16_t analog_values[8];
 
 private:
-  uint8_t id_{-1};
+  uint8_t id_{1};
   bool fake_use_coin{true};
 };

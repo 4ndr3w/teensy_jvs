@@ -46,7 +46,7 @@ bool JVSFrameReader::update()
     reset();
     return false;
   }
-
+  
   switch (state_)
   {
   case JVSState::READY:
