@@ -75,6 +75,26 @@ void loop()
     {
       switch (command)
       {
+      case JVSCommand::COMM_SPEED_CHANGE:
+      {
+        auto method_code = buf[1];
+        if (method_code < (sizeof(JVS_COMM_SPEEDS) / sizeof(JVS_COMM_SPEEDS[0])))
+        {
+          Serial4.end();
+          Serial4.begin(JVS_COMM_SPEEDS[method_code]);
+          Serial4.clear();
+          Serial4.transmitterEnable(15);
+          // must wait at least 5ms.
+          delay(5);
+          // if not 0 then we are in dash mode.
+          if (method_code != 0)
+          {
+            Serial.println("JVS dash active");
+            pinMode(JVS_DASH_LED, OUTPUT);
+          }
+        }
+        return 1;
+      }
       case JVSCommand::RESET:
         Serial.println("System reset");
         for (auto& jvs : jvses)

@@ -26,7 +26,7 @@ void setup_io()
 
 uint8_t build_test_button_packet() {
   std::bitset<8> packet;
-  packet.set(7, !digitalRead(starts[0]) && !digitalRead(starts[1]));
+  packet.set(7, !digitalRead(starts[0]) && !digitalRead(buttons[0][4]));
   return static_cast<uint8_t>(packet.to_ulong() & 0xFF);
 }
 
